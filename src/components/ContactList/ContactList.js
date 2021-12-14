@@ -1,8 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
+import { connect } from 'react-redux';
+import * as actions from '../../redux/actions';
 import PropTypes from 'prop-types';
 import s from './ContactList.module.css';
 
-export default function ContactList({ contacts, onDeleteContact }) {
+function ContactList({ contacts, onDeleteContact }) {
   return (
     <ul>
       {contacts.map(({ name, number, id }) => (
@@ -27,3 +29,24 @@ ContactList.propTypes = {
   ),
   onDeleteContact: PropTypes.func.isRequired,
 };
+
+const getFilteredContacts = (contacts, filter) => {
+  const normalizedFilter = filter.toLowerCase();
+
+  return contacts.filter(({ name }) =>
+    name.toLowerCase().includes(normalizedFilter),
+  );
+};
+
+const mapStateToProps = ({ contacts: { items, filter } }) => ({
+  contacts: getFilteredContacts(items, filter),
+});
+
+const mapDispatchToProps = dispatch => ({
+  onDeleteContact: id => dispatch(actions.deleteContact(id)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ContactList);
